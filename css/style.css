@@ -1206,3 +1206,63 @@ div:after {
         background-color: #00838f;
     }
 }
+
+
+/*my paging*/
+
+/*.paging {*/
+/*    max-width: 100%;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    margin: 0 auto;*/
+/*    color: #5a6268;*/
+
+/*}*/
+
+/*.containerPages {*/
+
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    vertical-align: center;*/
+
+/*}*/
+
+/*.page {*/
+/*    display: inline-block;*/
+/*    margin-right: 20px;*/
+/*    margin-left: 20px;*/
+/*    width: 50px;*/
+/*    height: 50px;*/
+/*    border-radius: 80%;*/
+/*    text-align: center;*/
+/*    padding-top: 15px;*/
+/*    cursor: pointer;*/
+
+/*}*/
+
+/*.page.active{*/
+/*    color: white;*/
+/*    background-color: lightseagreen;*/
+/*}*/
+
+/*.previous, .next {*/
+/*    width: 120px;*/
+/*    height: 50px;*/
+/*    border: 2px solid lightseagreen;*/
+/*    border-radius: 42%;*/
+/*    background-color: white;*/
+/*    padding: 10px;*/
+/*    margin-right: 5px;*/
+/*    margin-left: 5px;*/
+/*    color: #5a6268;*/
+/*    cursor: pointer;*/
+
+/*}*/
+
+/*.previous, .next i {*/
+/*    margin-right: 5px;*/
+/*    margin-left: 5px;*/
+/*}*/
+
+
+

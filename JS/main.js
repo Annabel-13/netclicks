@@ -21,7 +21,9 @@ const   leftMenu = document.querySelector('.left-menu'),
         tvShowsHead = document.querySelector('.tv-shows__head'),
         posterWrapper = document.querySelector('.poster__wrapper'),
         modalContent = document.querySelector('.modal__content'),
-        pagination = document.querySelector('.pagination');
+        pagination = document.querySelector('.pagination'),
+        trailer = document.getElementById('trailer'),
+        headTrailer = document.getElementById('headTrailer');
 
 
 
@@ -33,6 +35,8 @@ const loading = document.createElement('div');
 
 //work with server
 class DBservice {
+
+    searchQuery = '';
 
     //connection with server
     getData = async (url) => { //create request
@@ -58,10 +62,17 @@ class DBservice {
     //all searching results
     getSearchResult = query => {
         this.temp = `${SERVER}/search/tv?api_key=${API_KEY}&language=ru-RU&page=1&query=${query}&include_adult=false`;
-        return this.getData( this.temp)};
+        console.log("getSearchResult " + this.temp);
+        return this.getData(this.temp)
+    };
     //add page number
 
-    getNextPage = page => {return this.getData( this.temp + page)};
+    getNextPage = (query, page) => {
+        this.temp = `${SERVER}/search/tv?api_key=${API_KEY}&language=ru-RU&page=${page}&query=${query}&include_adult=false`;
+        console.log("getNextPage " + this.temp);
+        return this.getData(this.temp)
+    };
+
 
 
     //info about show
@@ -70,6 +81,7 @@ class DBservice {
     getPopular = () => this.getData(`${SERVER}/tv/popular?api_key=${API_KEY}&language=ru-RU&page=1`);
     getWeek = () => this.getData(`${SERVER}/tv/on_the_air?api_key=${API_KEY}&language=ru-RU&page=1`);
     getToday = () => this.getData(`${SERVER}/tv/airing_today?api_key=${API_KEY}&language=ru-RU&page=1`);
+    getTrailer = (id) => this.getData(`${SERVER}/tv/${id}/videos?api_key=${API_KEY}&language=ru-RU`);
 
 
 }
@@ -78,7 +90,6 @@ const dBservice = new DBservice();
 
 //create card in the list (outside)
 const renderCard = (response,target) => {
-    console.log(response);
     tvShowList.textContent = '';
 
     //text for searching results
@@ -102,7 +113,7 @@ const renderCard = (response,target) => {
             id
             } = item;
 
-        console.log(vote);
+
 
         const posterIMG = poster ? IMG_URL + poster : 'img/no-poster.jpg';
         const backdropIMG = backdrop ? IMG_URL + backdrop : 'img/no-poster.jpg';
@@ -129,13 +140,14 @@ const renderCard = (response,target) => {
 
 
     //few pages with results
-    pagination.textContent = '';
+    // pagination.textContent = '';
+    pagination.innerHTML = '';
 
-    // if (response.total_pages > 1){
-    //     for (let i = 1; i <= response.total_pages; i++){
-    //         pagination.innerHTML += `<li><a href="#" class="pages">${i}</a></li>`
-    //     }
-    // }
+    if (response.total_pages > 1){
+        for (let i = 1; i <= response.total_pages; i++){
+            pagination.innerHTML += `<li><a href="#" class="pages">${i}</a></li>`
+        }
+    }
 };
 //starting work with search input
 searchForm.addEventListener('submit', event => {
@@ -143,8 +155,9 @@ searchForm.addEventListener('submit', event => {
     event.preventDefault();
     const value = searchFormInput.value.trim(); //saving from blank request
     if (value){
+        this.searchQuery = value;
         tvShows.append(loading); //show loader
-        dBservice.getSearchResult(value).then(renderCard);
+        dBservice.getSearchResult(searchQuery).then(renderCard);
     }
     searchFormInput.value = '';
 
@@ -280,9 +293,35 @@ tvShowList.addEventListener('click', event => {
                        });
                        rating.textContent = data.vote_average;
                        description.textContent = data.overview;
-                       modalLink.href = data.homepage
-
+                       modalLink.href = data.homepage;
+                       return data.id
                    })
+                    .then(dBservice.getTrailer)
+                    .then(data => {
+                        if (data.results.length > 0){
+                            headTrailer.classList.add('hide') ;
+                            trailer.textContent = '';
+                            data.results.forEach( item => {
+                                headTrailer.classList.remove('hide');
+                                const trailerItem = document.createElement("li");
+
+                                trailer.innerHTML =
+                                    `
+                                     <h4>${item.name}</h4>
+                                     <br>
+                                    <iframe
+                                         width="400" 
+                                         height="300" 
+                                         src="https://www.youtube.com/embed/${item.key}"
+                                         frameborder="0"
+                                         allowfullscreen>   
+                                    </iframe>`;
+
+                                trailer.append(trailerItem);
+                            })
+                        }
+
+                    })
                     .then(() => {
             document.body.style.overflow = 'hidden';
             modal.classList.remove('hide')
@@ -309,12 +348,20 @@ modal.addEventListener('click', event => {
     }
 });
 
-// pagination.addEventListener('click', (event) => {
-//     event.preventDefault();
-//     const target = event.target;
-//     //check that we choose page
-//     if (target.classList.contains('pages')) {
-//         tvShows.append(loading); //shows loader
-//         dBservice.getNextPage(target.textContent).then(renderCard)
-//     }
-// });
+pagination.addEventListener('click', (event) => {
+    event.preventDefault();
+    const target = event.target;
+    //check that we choose page
+    if (target.classList.contains('pages')) {
+        console.log(target.textContent);
+        tvShows.append(loading); //shows loader
+        dBservice.getNextPage(searchQuery, target.innerHTML).then(renderCard)
+    }
+});
+
+
+/*my paging*/
+
+// paging = document.querySelector('.paging');
+
+
