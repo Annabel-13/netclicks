@@ -360,8 +360,9 @@ pagination.addEventListener('click', (event) => {
 });
 
 
-/*my paging*/
 
-// paging = document.querySelector('.paging');
+
+
+
 
 
