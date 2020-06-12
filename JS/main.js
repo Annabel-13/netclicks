@@ -21,7 +21,7 @@ const   leftMenu = document.querySelector('.left-menu'),
         tvShowsHead = document.querySelector('.tv-shows__head'),
         posterWrapper = document.querySelector('.poster__wrapper'),
         modalContent = document.querySelector('.modal__content'),
-        pagination = document.querySelector('.pagination'),
+        // pagination = document.querySelector('.pagination'),
         trailer = document.getElementById('trailer'),
         headTrailer = document.getElementById('headTrailer');
 
@@ -348,16 +348,16 @@ modal.addEventListener('click', event => {
     }
 });
 
-pagination.addEventListener('click', (event) => {
-    event.preventDefault();
-    const target = event.target;
-    //check that we choose page
-    if (target.classList.contains('pages')) {
-        console.log(target.textContent);
-        tvShows.append(loading); //shows loader
-        dBservice.getNextPage(searchQuery, target.innerHTML).then(renderCard)
-    }
-});
+// pagination.addEventListener('click', (event) => {
+//     event.preventDefault();
+//     const target = event.target;
+//     //check that we choose page
+//     if (target.classList.contains('pages')) {
+//         console.log(target.textContent);
+//         tvShows.append(loading); //shows loader
+//         dBservice.getNextPage(searchQuery, target.innerHTML).then(renderCard)
+//     }
+// });
 
 
 

@@ -1240,16 +1240,11 @@ div:after {
 
 }
 
-.page.active{
-    color: white;
-    background-color: lightseagreen;
-}
-
 .previous,
 .next {
     width: 120px;
     height: 50px;
-    border: 2px solid lightseagreen;
+    border: 2px solid;
     border-radius: 50%;
     background-color: white;
     padding: 10px;

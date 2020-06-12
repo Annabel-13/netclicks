@@ -4,7 +4,8 @@
 document.addEventListener("DOMContentLoaded", function() {
 
     let anonym = function(currentPage){};
-    let pageView = new PageView(5);
+    let pageView = new PageView(5,".newPagination");
+        pageView.setAnotherColor('#800080');
         pageView.setDelegate(anonym);
 });
 
@@ -19,30 +20,36 @@ class PageView {
     children = [];
     delegate = function (currentPage){};
     pages = {};
+    container = {};
+    color = 'lightseagreen';
+    previous = {};
+    next = {};
 
 
 
-    constructor(totalPages) {
+    constructor(totalPages,parentId) {
         this.totalPages = totalPages;
         this.createContainer();
         this.createPages();
         this.drawSelected();
+        document.querySelector(parentId).append(this.container);
     }
 
-    createContainer() {
+    createContainer(parentId) {
         const container = document.createElement('section');
               container.classList.add('paging');
 
-        document.body.appendChild(container);
+        // document.body.appendChild(container);
+
 
         const innerContainer = document.createElement('div');
               innerContainer.classList.add('containerPages');
-              innerContainer.appendChild(this.createPreviousBtn());
+              innerContainer.appendChild(this.createPreviousBtn(this.previous));
               innerContainer.appendChild( this.createLayoutPage());
-              innerContainer.appendChild( this.createNextPage());
+              innerContainer.appendChild( this.createNextPage(this.next));
 
         container.appendChild(innerContainer);
-
+        this.container = container;
     }
 
     createPages(){
@@ -63,19 +70,21 @@ class PageView {
 
 
     createPreviousBtn(){
-        const previous = document.createElement('button');
-              previous.classList.add('previous');
-              previous.innerHTML = "<i class=\"fas fa-chevron-left\"></i>Previous";
-              previous.addEventListener('click', () => {this.movePrevious()});
-        return previous
+        this.previous = document.createElement('button');
+        this.previous.classList.add('previous');
+        this.previous.innerHTML = "<i class=\"fas fa-chevron-left\"></i>Previous";
+        this.previous.addEventListener('click', () => {this.movePrevious()});
+
+        return this.previous
     }
 
     createNextPage(){
-        const next = document.createElement('button');
-              next.classList.add('next');
-              next.innerHTML = "Next<i class=\"fas fa-chevron-right\"></i>";
-              next.addEventListener('click', () => {this.moveNext()});
-              return next
+        this.next = document.createElement('button');
+        this.next.classList.add('next');
+        this.next.innerHTML = "Next<i class=\"fas fa-chevron-right\"></i>";
+        this.next.addEventListener('click', () => {this.moveNext()});
+
+      return this.next
     }
 
     createChild(num){
@@ -96,13 +105,47 @@ class PageView {
     }
 
     drawSelected(){
-        const activeClass = 'active';
-        this.children[this.previousPage].classList.remove(activeClass);
-        this.children[this.currentPage].classList.add(activeClass);
+
+        let previousChild = this.children[this.previousPage];
+        let currentChild = this.children[this.currentPage];
+
+            previousChild.style.backgroundColor = 'transparent';
+            previousChild.style.color = this.color;
+
+            currentChild.style.backgroundColor = this.color;
+            currentChild.style.color = 'white';
 
         if (this.delegate != null){
             this.delegate(this.currentPage + 1);
         }
+
+    }
+
+    setAnotherColor(color){
+       this.color = color;
+       this.redrawAll();
+    }
+
+    redrawAll(){
+        this.redrawBtn(this.previous);
+        this.redrawBtn(this.next);
+
+
+        for (let i = 0; i < this.totalPages; i++){
+         let child = this.children[i];
+            if (i === this.currentPage){
+                child.style.backgroundColor = this.color;
+                child.style.color = 'white';
+            } else {
+                child.style.backgroundColor = 'transparent';
+                child.style.color = this.color;
+            }
+        }
+    }
+
+    redrawBtn(btn){
+        btn.style.borderColor = this.color;
+        btn.style.color = this.color;
     }
 
     setDelegate(delegate){
