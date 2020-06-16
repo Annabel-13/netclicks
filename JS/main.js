@@ -22,7 +22,7 @@ const   leftMenu = document.querySelector('.left-menu'),
         posterWrapper = document.querySelector('.poster__wrapper'),
         modalContent = document.querySelector('.modal__content'),
         // pagination = document.querySelector('.pagination'),
-        trailer = document.getElementById('trailer'),
+        trailerView = document.getElementById('trailer'),
         headTrailer = document.getElementById('headTrailer');
 
 
@@ -88,12 +88,24 @@ class DBservice {
 
 const dBservice = new DBservice();
 
+// start page
+
+window.addEventListener('load', (event) => {
+    const target = event.target;
+    if (document.readyState === 'complete') {
+        tvShows.append(loading); //shows loader
+        dBservice.getPopular().then((response) => renderCard(response, target))
+    }
+});
+
+
+
 //create card in the list (outside)
 const renderCard = (response,target) => {
     tvShowList.textContent = '';
 
     //text for searching results
-    if (!response.total_results) {
+    if (response.results < 1) {
         loading.remove();
         tvShowsHead.textContent = 'По вашему запросу ничего не найдено!';
         tvShowsHead.style.color = 'red';
@@ -119,36 +131,55 @@ const renderCard = (response,target) => {
         const backdropIMG = backdrop ? IMG_URL + backdrop : 'img/no-poster.jpg';
         const voteElem = vote ? `<span class="tv-card__vote">${vote}</span>` : '';
 
+        const cardModel = new CardModel(id, posterIMG,backdropIMG, voteElem, title);
+
         //create card
-        const card = document.createElement('li');
-            card.idTVShows = id;
-            card.classList.add('tv-shows__item');
-            card.innerHTML = `
-            <a href="#" id='${id}' class="tv-card">
-                        ${voteElem}
-                        <img class="tv-card__img"
-                             src="${posterIMG}"
-                             data-backdrop="${backdropIMG}"
-                             alt=${title}>
-                        <h4 class="tv-card__head">${title}</h4>
-                    </a>
-            `;
+        const card = createCard(cardModel, id);
             loading.remove();
             tvShowList.append(card)
-
     });
 
 
-    //few pages with results
-    // pagination.textContent = '';
-    pagination.innerHTML = '';
-
-    if (response.total_pages > 1){
-        for (let i = 1; i <= response.total_pages; i++){
-            pagination.innerHTML += `<li><a href="#" class="pages">${i}</a></li>`
-        }
-    }
+    // //few pages with results
+    // // pagination.textContent = '';
+    // pagination.innerHTML = '';
+    //
+    // if (response.total_pages > 1){
+    //     for (let i = 1; i <= response.total_pages; i++){
+    //         pagination.innerHTML += `<li><a href="#" class="pages">${i}</a></li>`
+    //     }
+    // }
 };
+
+function CardModel (id, posterIMG, backdropIMG, voteElem, title){
+    this.id = id;
+    this.posterIMG = posterIMG;
+    this.backdropIMG = backdropIMG;
+    this.voteElem = voteElem;
+    this.title = title;
+}
+
+function createCard(cardModel, id) {
+    const card = document.createElement('li');
+          card.idTVShows = id;
+          card.classList.add('tv-shows__item');
+          card.innerHTML = getCard(cardModel);
+    return card
+}
+
+function getCard(model){
+    return `
+            <a href="#" id='${model.id}' class="tv-card">
+                        ${model.voteElem}
+                        <img class="tv-card__img"
+                             src="${model.posterIMG}"
+                             data-backdrop="${model.backdropIMG}"
+                             alt=${model.title}>
+                        <h4 class="tv-card__head">${model.title}</h4>
+                    </a>
+            `;
+}
+
 //starting work with search input
 searchForm.addEventListener('submit', event => {
     //stay our position
@@ -207,7 +238,7 @@ if (target.closest('#top-rated')) {
       tvShows.append(loading); //shows loader
        dBservice.getTopRated().then((response) => renderCard(response, target))
 }
-if (target.closest('#popular')) {
+if ( target.closest('#popular')) {
       tvShows.append(loading); //shows loader
        dBservice.getPopular().then((response) => renderCard(response, target))
 }
@@ -266,74 +297,74 @@ tvShowList.addEventListener('click', event => {
     if (card){
 
         preloader.style.display = 'block';
-        // get info about serial with id
-        dBservice.getTVShow(card.id)
-                   .then(data => {
 
-                       if ( data.poster_path){
-                           tvCardImg.src = IMG_URL + data.poster_path;
-                           tvCardImg.alt =  data.name;
-                           posterWrapper.style.display = '';
-                           modalContent.style.padding = ''
-                       } else {
-                           posterWrapper.style.display = 'none';
-                           modalContent.style.padding = '25px'
-                       }
+            Promise.all([
+                dBservice.getTVShow(card.id),
+                dBservice.getTrailer(card.id)
+            ])
+            .then(([data, trailerData]) => {
+
+                if ( data.poster_path){
+                    tvCardImg.src = IMG_URL + data.poster_path;
+                    tvCardImg.alt =  data.name;
+                    posterWrapper.style.display = '';
+                    modalContent.style.padding = ''
+                } else {
+                    posterWrapper.style.display = 'none';
+                    modalContent.style.padding = '25px'
+                }
 
 
-                       modalTitle.textContent = data.name;
-                       // genresList.innerHTML = data.genres.reduce((acc, item) => `${acc} <li>${item.name}</li>`, '');
-                       genresList.textContent = '';
-                       // for (const item of data.genres) {
-                       //     genresList.innerHTML += `<li>${item.name}</li>`;
-                       // }
+                modalTitle.textContent = data.name;
 
-                       data.genres.forEach(item => {
-                           genresList.innerHTML += `<li>${item.name}</li>`;
-                       });
-                       rating.textContent = data.vote_average;
-                       description.textContent = data.overview;
-                       modalLink.href = data.homepage;
-                       return data.id
-                   })
-                    .then(dBservice.getTrailer)
-                    .then(data => {
-                        if (data.results.length > 0){
-                            headTrailer.classList.add('hide') ;
-                            trailer.textContent = '';
-                            data.results.forEach( item => {
-                                headTrailer.classList.remove('hide');
-                                const trailerItem = document.createElement("li");
 
-                                trailer.innerHTML =
-                                    `
-                                     <h4>${item.name}</h4>
-                                     <br>
-                                    <iframe
-                                         width="400" 
-                                         height="300" 
-                                         src="https://www.youtube.com/embed/${item.key}"
-                                         frameborder="0"
-                                         allowfullscreen>   
-                                    </iframe>`;
+                genresList.textContent = '';
+                data.genres.forEach(item => {
+                    genresList.innerHTML += `<li>${item.name}</li>`;
+                });
 
-                                trailer.append(trailerItem);
-                            })
-                        }
+                //parse trailers request
+                if(trailerData.results.length > 0){
+                    trailerData.results.forEach(item => {
+                        const trailerHtml = document.createElement("li");
+                              trailerHtml.innerHTML = getTrailerHtml(item);
+                        trailerView.append(trailerHtml);
+                    });
 
-                    })
-                    .then(() => {
-            document.body.style.overflow = 'hidden';
-            modal.classList.remove('hide')
-        })
-                    .finally (() => {
-                        preloader.style.display = '';
-        })
+                    headTrailer.classList.remove('hide');
+                }else{
+                    headTrailer.classList.add('hide') ;
+                    trailerView.textContent = '';
+                }
 
+                rating.textContent = data.vote_average;
+                description.textContent = data.overview;
+                modalLink.href = data.homepage;
+                return data.id
+            })
+            .then(() => {
+                document.body.style.overflow = 'hidden';
+                modal.classList.remove('hide')
+            })
+            .finally (() => {
+                preloader.style.display = '';
+            })
 
     }
 });
 
+function getTrailerHtml(trailerItem){
+    return `
+                                     <h4>${trailerItem.name}</h4>
+                                     <br>
+                                    <iframe
+                                         width="400"
+                                         height="300"
+                                         src="https://www.youtube.com/embed/${trailerItem.key}"
+                                         frameborder="0"
+                                         allowfullscreen>
+                                    </iframe>`
+}
 
 //closing
 
