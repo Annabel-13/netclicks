@@ -1,17 +1,5 @@
 /*my paging*/
 
-
-document.addEventListener("DOMContentLoaded", function() {
-
-    let anonym = function(currentPage){};
-    let pageView = new PageView(5,".newPagination");
-        pageView.setAnotherColor('#800080');
-        pageView.setDelegate(anonym);
-});
-
-
-
-
 class PageView {
 
     totalPages = 3;
@@ -19,7 +7,7 @@ class PageView {
     previousPage = 0;
     children = [];
     delegate = function (currentPage){};
-    pages = {};
+    layoutWithPages = {};
     container = {};
     color = 'lightseagreen';
     previous = {};
@@ -27,45 +15,71 @@ class PageView {
 
 
 
-    constructor(totalPages,parentId) {
-        this.totalPages = totalPages;
+    constructor() {
         this.createContainer();
-        this.createPages();
+        this.createPages(this.totalPages);
         this.drawSelected();
-        document.querySelector(parentId).append(this.container);
+        document.querySelector(".newPagination").append(this.container);
     }
 
-    createContainer(parentId) {
+    createContainer() {
         const container = document.createElement('section');
               container.classList.add('paging');
-
-        // document.body.appendChild(container);
-
 
         const innerContainer = document.createElement('div');
               innerContainer.classList.add('containerPages');
               innerContainer.appendChild(this.createPreviousBtn(this.previous));
-              innerContainer.appendChild( this.createLayoutPage());
+              innerContainer.appendChild( this.createLayoutWithPages());
               innerContainer.appendChild( this.createNextPage(this.next));
 
         container.appendChild(innerContainer);
         this.container = container;
     }
 
-    createPages(){
+    setTotalPages(totalPages){
+        this.totalPages = totalPages;
+        this.removeChildren();
+        this.createPages(this.totalPages);
+        this.redrawAll(this.totalPages);
+    }
 
-        if (this.totalPages > 0){
-            for (let i = 0; i < this.totalPages; i++){
-                this.pages.append(this.createChild(i + 1))
+    removeChildren(){
+        this.layoutWithPages.innerHTML = '';
+        this.children = [];
+        this.currentPage = 0;
+        this.previousPage = 0;
+    }
+
+    createPages(totalPages){
+        if(totalPages > 0){
+            for (let i = 0; i < totalPages; i++){
+                this.layoutWithPages.append(
+                    this.createChild(i + 1)
+                )
             }
         }
     }
 
-    createLayoutPage(){
-        const pages = document.createElement('ul');
-              pages.classList.add('pages');
-              this.pages = pages;
-        return pages
+    redrawAll(totalPages){
+        this.redrawBtn(this.previous);
+        this.redrawBtn(this.next);
+
+        for (let i = 0; i < totalPages; i++){
+            let child = this.children[i];
+            if (i === this.currentPage){
+                child.style.backgroundColor = this.color;
+                child.style.color = 'white';
+            } else {
+                child.style.backgroundColor = 'transparent';
+                child.style.color = this.color;
+            }
+        }
+    }
+
+    createLayoutWithPages(){
+        this.layoutWithPages = document.createElement('ul');
+        this.layoutWithPages.classList.add('pages');
+        return this.layoutWithPages
     }
 
 
@@ -97,7 +111,8 @@ class PageView {
                   const target = event.target;
                   this.previousPage = this.currentPage;
                   this.currentPage = parseInt(target.innerHTML) - 1;
-                  this.drawSelected()
+                  this.drawSelected();
+                  this.notifyDelegate();
               });
 
         this.children.push(child);
@@ -105,7 +120,6 @@ class PageView {
     }
 
     drawSelected(){
-
         let previousChild = this.children[this.previousPage];
         let currentChild = this.children[this.currentPage];
 
@@ -114,33 +128,17 @@ class PageView {
 
             currentChild.style.backgroundColor = this.color;
             currentChild.style.color = 'white';
+    }
 
+    notifyDelegate(){
         if (this.delegate != null){
             this.delegate(this.currentPage + 1);
         }
-
     }
 
     setAnotherColor(color){
        this.color = color;
-       this.redrawAll();
-    }
-
-    redrawAll(){
-        this.redrawBtn(this.previous);
-        this.redrawBtn(this.next);
-
-
-        for (let i = 0; i < this.totalPages; i++){
-         let child = this.children[i];
-            if (i === this.currentPage){
-                child.style.backgroundColor = this.color;
-                child.style.color = 'white';
-            } else {
-                child.style.backgroundColor = 'transparent';
-                child.style.color = this.color;
-            }
-        }
+       this.redrawAll(this.totalPages);
     }
 
     redrawBtn(btn){
@@ -156,7 +154,8 @@ class PageView {
         if (this.currentPage < this.totalPages - 1){
             this.previousPage = this.currentPage;
             this.currentPage += 1;
-            this.drawSelected()
+            this.drawSelected();
+            this.notifyDelegate()
         }
     }
 
@@ -164,7 +163,8 @@ class PageView {
         if (this.currentPage > 0){
             this.previousPage = this.currentPage;
             this.currentPage -= 1;
-            this.drawSelected()
+            this.drawSelected();
+            this.notifyDelegate()
         }
     }
 

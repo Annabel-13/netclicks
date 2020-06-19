@@ -1216,7 +1216,6 @@ div:after {
     justify-content: center;
     margin: 0 auto;
     color: #5a6268;
-
 }
 
 .containerPages {
@@ -1225,6 +1224,10 @@ div:after {
     justify-content: space-between;
     vertical-align: center;
 
+}
+
+.newPagination{
+    margin-bottom: 100px;
 }
 
 .page {
