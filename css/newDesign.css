@@ -1,0 +1,144 @@
+/*
+first section: logo, nav,banner
+ */
+body {
+    margin: 0;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+
+}
+
+.topPart {
+    position: absolute;
+    width: 100vw;
+    height: 80vh;
+    background-color: #0b2e13;
+    top:0;
+}
+
+/*menu*/
+
+.angle {
+    width: 150px;
+    height: 150px;
+    border-radius: 100px;
+    background-color: black;
+    opacity: 0.5;
+    margin: -40px -20px;
+    transition: 1s;
+
+    color: red;
+    font-weight: bold;
+    font-size: 40px;
+    text-align: center;
+    line-height: 200px;
+}
+
+.angle:hover {
+    border: red solid 2px;
+    transform: rotate(360deg);
+
+
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    -webkit-transition: all ease .5s;
+    -o-transition: all ease .5s;
+    transition: all ease .5s;
+    -webkit-transform: rotate(-360deg);
+    -ms-transform: rotate(-360deg);
+}
+
+
+
+
+.small-logo {
+    margin-left: 20px;
+
+}
+
+
+/*menu header*/
+
+.header{
+    display: inline-flex;
+    width: 100vw;
+    height: 15vh;
+    background-color: black;
+    opacity: 0.5;
+
+
+    position:absolute;
+    top:-150px;
+    transition: 1.5s;
+
+}
+
+.header.active {
+
+    transition: 1.5s;
+    top: 0;
+}
+
+.angle.close {
+
+   
+    margin-left: -150px;
+    transition: 1s;
+
+}
+
+.logo{
+    color: red;
+    font-size: 40px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-left: 15px;
+    margin-top: 4vh;
+}
+
+nav {
+    margin: auto;
+    padding: 10px;
+    text-decoration: none;
+}
+.nav-link {
+    color: red;
+    font-size: 35px;
+    text-decoration: none;
+    margin-right: 5vw;
+}
+
+/*profile*/
+.profile {
+    display: flex;
+    width: 15vw;
+    height: 8vh;
+    /*background-color: #00addc;*/
+
+    margin: 10px;
+}
+
+.profile-photo {
+    display: inline-flex;
+    width: 70px;
+    height: 70px;
+    border-radius: 100px;
+    background: url('../img/avatar/avatar.jpg') center;
+    background-size: cover;
+    border: red solid 1px;
+
+    margin: 20px auto;
+}
+
+.profile a {
+    font-size: 25px;
+    color: red;
+    margin: 30px auto;
+    font-weight: bold;
+}
+
+/*pagination*/
+.newPagination{
+    margin-bottom: 100px;
+}
